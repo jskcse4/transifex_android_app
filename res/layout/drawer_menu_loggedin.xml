@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical" >
+	
+	<Button
+	    android:id="@+id/drawerDashboardButton"
+	    android:layout_width="fill_parent"
+	    android:layout_height="50dp"
+	    android:background="@drawable/rectangle_sidebar_button"
+	    android:text="Dashboard"
+	    android:textColor="@color/white" />
+	<Button
+	    android:id="@+id/drawerLogoutButton"
+	    android:layout_width="fill_parent"
+	    android:layout_height="50dp"
+	    android:background="@drawable/rectangle_sidebar_button"
+	    android:text="Logout"
+	    android:textColor="@color/white" />
+</LinearLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/holder"  xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <include
+    android:id="@+id/aa"
+    layout="@layout/tab_language_header"
+    />
+    <include
+    
+    layout="@layout/tab_language_overall"
+    />
+    <include
+    
+    layout="@layout/tab_language_resources"
+    />
+   
+    
+</LinearLayout> 

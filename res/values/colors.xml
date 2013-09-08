@@ -8,4 +8,12 @@
 	<color name="gray">#C0C0C0</color>
 	<color name="orange">#C57230</color>
 	<color name="blue">#0000FF</color>
+	<color name="borderGray">#dddddd</color>
+	<color name="titleBlue">#3d658d</color>
+	<color name="darkGray">#999999</color>
+	
+	<color name="reviewed">#6499F3</color>
+	<color name="untranslated">#FF0000</color>
+	<color name="translated">#00FF00</color>
+	
 </resources>

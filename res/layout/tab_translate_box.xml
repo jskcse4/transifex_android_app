@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dashboard"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="0dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginTop="20dp"
+    android:background="@drawable/rectangle_general"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="15dp"
+    android:paddingTop="0dp" >
+
+    <TextView
+        android:id="@+id/translateBoxButtonClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="3dp"
+        android:clickable="true"
+        android:paddingBottom="2dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="10dp"
+        android:paddingTop="3dp"
+        android:text="X"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/darkGray"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:id="@+id/translateBoxStatusLine"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="@color/untranslated" >
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:paddingBottom="40dp"
+            android:paddingLeft="13dp" >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/TextView01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Source String"
+                    android:textColor="@color/orange"
+                    android:textSize="17dp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/RelativeLayout01"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/element_line" >
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/translateBoxSourceString"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle_input"
+                android:ems="10"
+                android:enabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="top|left"
+                android:inputType="textMultiLine"
+                android:minLines="5"
+                android:padding="7dp"
+                android:text="This is a string for translation"
+                android:textColor="@color/black"
+                android:textSize="12dp"
+                android:textStyle="normal" >
+
+                <requestFocus />
+            </EditText>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp" >
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Translation"
+                    android:textColor="@color/orange"
+                    android:textSize="17dp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/line"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/element_line" >
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/translateBoxTranslationString"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle_input"
+                android:ems="10"
+                android:gravity="top|left"
+                android:inputType="textMultiLine"
+                android:minLines="5"
+                android:padding="7dp"
+                android:text="This is a string for translation"
+                android:textColor="@color/black"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" >
+
+                <Button
+                    android:id="@+id/translateBoxButtonAuto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="false"
+                    android:background="@drawable/rectangle_button"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:text="Auto"
+                    android:textSize="15sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true" >
+
+                    <CheckBox
+                        android:id="@+id/translateBoxButtonReviewed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="2dp"
+                        android:background="@drawable/rectangle_button"
+                        android:paddingLeft="35dp"
+                        android:paddingRight="5dp"
+                        android:text="Reviewed" />
+
+                    <Button
+                        android:id="@+id/translateBoxButtonSave"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:background="@drawable/rectangle_button"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="Save"
+                        android:textSize="15sp" />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+    
+</RelativeLayout>
