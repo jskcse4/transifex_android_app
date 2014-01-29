@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -49,10 +50,13 @@ public class UIManager implements ScrollViewListener{
 	static final int SCREEN_LANGUAGE = 4;
 	static final int SCREEN_TRANSLATE = 5;
 	
-	static final int UI_STATUS_IDLE = 0;
+	static final int UI_STATUS_LOCKED = -1;
+	static final int UI_STATUS_IDLE = 0;	
+	static final int UI_STATUS_REQUEST_SUCCEED = 1;
+	static final int UI_STATUS_REQUEST_FAILED = 2;
 	
 	int uiStatus = UI_STATUS_IDLE;
-	
+		
 	Mtx mtx;
 	int currentScreen=0;
 	
@@ -114,10 +118,21 @@ public class UIManager implements ScrollViewListener{
 	public void initUI(){
 		keyboard = (InputMethodManager)mtx.getSystemService(Mtx.INPUT_METHOD_SERVICE);
 		drawer = (RelativeLayout)mtx.findViewById(R.id.drawer);
-		content = (ObservableScrollView)mtx.findViewById(R.id.content);
-		content.setScrollViewListener(this);
-		drawerButton = (ImageView)mtx.findViewById(R.id.drawerButton);
 		email = (TextView)mtx.findViewById(R.id.email);
+		content = (ObservableScrollView)mtx.findViewById(R.id.content);
+		content.setScrollViewListener(this);		
+		content.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+		content.setFocusable(true);
+		content.setFocusableInTouchMode(true);
+		content.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				arg0.requestFocusFromTouch();	
+				arg0.setSelected(true);				
+				return false;
+			}
+	    });
+		drawerButton = (ImageView)mtx.findViewById(R.id.drawerButton);		
 		gravatar = (ImageView)mtx.findViewById(R.id.gravatar);
 		logo = (ImageView)mtx.findViewById(R.id.logo);
 		loading = (ProgressBar)mtx.findViewById(R.id.loading);
@@ -226,19 +241,11 @@ public class UIManager implements ScrollViewListener{
 			loginButton.setOnClickListener(new OnClickListener(){
 				@Override
 				public void onClick(View arg0) {					
-					//Log.d("ME","Login Button Clicked!");
-					
+					//Log.d("ME","Login Button Clicked!");					
 					mtx.user.user = loginEmail.getText().toString();
 					mtx.user.password = loginPassword.getText().toString();
-					if(mtx.user.login()){
-						if(rememberMeCheckBox.isChecked())
-							mtx.user.saveUser();
-						keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
-						loadUI(SCREEN_DASHBOARD);
-					}else
-						Toast.makeText(mtx, "Could authenticate! Try again please.", Toast.LENGTH_LONG).show();
-						
-					
+					new AsyncLogin().execute(null, null, null);
+					keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);					
 				}			
 			});	
 			
@@ -269,11 +276,8 @@ public class UIManager implements ScrollViewListener{
 				@Override
 				public void onClick(View arg0) {					
 					mtx.user.project = new Project(mtx);					
-					if(mtx.user.project.getProject(slug.getText().toString())){
-						keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
-						loadUI(SCREEN_PROJECT);
-					}else
-						Toast.makeText(mtx, "Project could not be retrieved!", Toast.LENGTH_LONG).show();
+					new AsyncGetProject().execute(null, null, null);
+					Toast.makeText(mtx, "This might take a while...", Toast.LENGTH_SHORT).show();
 					keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
 				}				
 			});
@@ -349,10 +353,13 @@ public class UIManager implements ScrollViewListener{
 			
 			resourcesList = (LinearLayout)mtx.findViewById(R.id.resourcesList);
 			
-			JSONArray resources = mtx.user.project.projectDetailsJson.getJSONArray("resources");
-			for(int i=0;i<resources.length();i++){
+			Iterator<Entry<JSONObject, JSONObject>> selectedLanguageResources = mtx.user.project.selectedLanguageResources.entrySet().iterator();
+			//JSONArray resources = mtx.user.project.projectDetailsJson.getJSONArray("resources");
+			//for(int i=0;i<resources.length();i++){
+			while(selectedLanguageResources.hasNext()){
+				Map.Entry<JSONObject, JSONObject> mEntry = (Map.Entry<JSONObject, JSONObject>) selectedLanguageResources.next();
 				LinearLayout resourceItem = (LinearLayout)LayoutInflater.from(mtx).inflate(R.layout.element_list_item, resourcesList,false);
-				setResourceListItemProperties(resourceItem,resources.getJSONObject(i));				
+				setResourceListItemProperties(resourceItem,mEntry.getKey(),mEntry.getValue());				
 				resourcesList.addView(resourceItem);
 			}
 			content.scrollTo(0, 0);
@@ -385,8 +392,7 @@ public class UIManager implements ScrollViewListener{
 			
 			
 			stringsList = (LinearLayout)mtx.findViewById(R.id.stringsList);			
-			JSONArray Strings = mtx.user.project.getResourceStringsByLanguage(
-				mtx.user.project.slug, mtx.user.project.selectedResourceSlug, mtx.user.project.selectedLanguageCode);
+			JSONArray Strings = mtx.user.project.selectedResourceStrings;
 			int i;						
 			for(i=0;i<Strings.length();i++){
 				RelativeLayout stringBox = (RelativeLayout)LayoutInflater.from(mtx).inflate(R.layout.tab_translate_box, stringsList,false);
@@ -443,7 +449,7 @@ public class UIManager implements ScrollViewListener{
 				parameter2.requestFocus();
 				Toast.makeText(Mtx.context, "StringBox closed!", Toast.LENGTH_LONG).show();
 				((ViewGroup) parameter1).removeView(parameter2);
-				keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
+				//keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
 			}
 		});
 		
@@ -454,7 +460,7 @@ public class UIManager implements ScrollViewListener{
 				parameter2.requestFocus();
 				String translation = Mtx.mtx.user.project.translateString(((EditText)parameter1).getText().toString());
 				((EditText)parameter2).setText(translation);
-				keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
+				//keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
 			}			
 		});
 		
@@ -470,7 +476,7 @@ public class UIManager implements ScrollViewListener{
 					Toast.makeText(Mtx.mtx, "Translation Saved!", Toast.LENGTH_LONG).show();
 				else
 					Toast.makeText(Mtx.mtx, "Save Failed!", Toast.LENGTH_LONG).show();
-				keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
+				//keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
 			}
 		});
 		
@@ -500,15 +506,15 @@ public class UIManager implements ScrollViewListener{
 					  parameter3.setBackgroundColor(Mtx.mtx.getResources().getColor(R.color.translated));
 				  else
 					  parameter3.setBackgroundColor(Mtx.mtx.getResources().getColor(R.color.untranslated));
-				  keyboard.hideSoftInputFromWindow(buttonView.getWindowToken(),0);
+				  //keyboard.hideSoftInputFromWindow(buttonView.getWindowToken(),0);
 			  }
 		  });
 		//end dirty
 	}
 	
-	public void setResourceListItemProperties(LinearLayout item,JSONObject resource){
-		JSONObject resourceStats = mtx.user.project.getResourceStatsByLanguage(mtx.user.project.slug, 
-				resource.getString("slug"), mtx.user.project.selectedLanguageCode);
+	public void setResourceListItemProperties(LinearLayout item,JSONObject resource,JSONObject resourceStats){
+		//JSONObject resourceStats = mtx.user.project.getResourceStatsByLanguage(mtx.user.project.slug, 
+				//resource.getString("slug"), mtx.user.project.selectedLanguageCode);
 		if(resourceStats==null)
 			return;
 		
@@ -521,7 +527,7 @@ public class UIManager implements ScrollViewListener{
 			public void onClick(View arg0) {				
 				mtx.user.project.selectedResourceSlug = parameter1.getString("slug");
 				//Log.d("ME","selectedResourceSlug:"+mtx.user.project.selectedResourceSlug);
-				resourceDialog(parameter1,parameter2);
+				resourceDialog(parameter1,parameter2);				
 				Toast.makeText(mtx, "Resource Selected", Toast.LENGTH_LONG).show();
 			}			
 		});
@@ -565,7 +571,7 @@ public class UIManager implements ScrollViewListener{
 		builder.setView(dialogLayout);
 		builder.setPositiveButton("Translate", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {		        	   
-		        	   loadUI(SCREEN_TRANSLATE);
+		        	   new AsyncGetResourceStrings().execute(null, null, null);		        	   
 		           }
 		       });
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -586,8 +592,8 @@ public class UIManager implements ScrollViewListener{
 			@Override
 			public void onClick(View arg0) {
 				mtx.user.project.selectedLanguageCode = parameter;
-				loadUI(SCREEN_LANGUAGE);
-				Toast.makeText(mtx, "Language Selected", Toast.LENGTH_LONG).show();
+				new AsyncGetResourcesByLanguage().execute(null, null, null);
+				//content.requestFocusFromTouch();
 			}			
 		});
 	}
@@ -631,24 +637,32 @@ public class UIManager implements ScrollViewListener{
 	}
 	
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
+		//if(Math.abs(x-oldx)>40){
+			//content.requestFocus();
+			//keyboard.hideSoftInputFromWindow(content.getWindowToken(),0);
+		//}		
 		//Log.d("ME","onScrollChanged() called");
 		if(currentScreen==SCREEN_TRANSLATE && scrollView == content){ // we're gonna create lazyloading for stringBoxes
 			//Log.d("ME","stringsList height:"+ lazyLoader.stringsList.getHeight());			
 			if(y>lazyLoader.stringsList.getHeight()*0.8 && lazyLoader.lazyLoadingEnabledFlag){
-				lazyLoader.lazyLoadingEnabledFlag = false;
+				lazyLoader.lazyLoadingEnabledFlag = false;				
 				if(lazyLoader.lastStringLoaded+1<lazyLoader.Strings.length()){
-					Toast tLoading = Toast.makeText(mtx, "Loading Strings", Toast.LENGTH_SHORT);
-					tLoading.show();
+					//Log.d("ME","lazyloading running");
+					content.requestFocus();
+					//keyboard.hideSoftInputFromWindow(content.getWindowToken(),0);
+					//Toast tLoading = Toast.makeText(mtx, "Loading Strings", Toast.LENGTH_SHORT);
+					//tLoading.show();
 					int i;						
 					for(i=lazyLoader.lastStringLoaded+1;i<lazyLoader.Strings.length();i++){
 						RelativeLayout stringBox = (RelativeLayout)LayoutInflater.from(mtx).inflate(R.layout.tab_translate_box, lazyLoader.stringsList,false);
 						setTranslateBoxItemProperties(mtx,stringBox,lazyLoader.Strings.getJSONObject(i),lazyLoader.stringsList); // The all app is about this LITLE FUNCTION! lets give it full SCOPE!				
 						lazyLoader.stringsList.addView(stringBox);
-						if(i>15) break; // lazyloading
+						if(i>5+lazyLoader.lastStringLoaded+1) break; // lazyloading
 					}
 					lazyLoader.lastStringLoaded=i-1;
 					lazyLoader.lazyLoadingEnabledFlag = true;
-					tLoading.cancel();
+					//tLoading.cancel();
+					//Log.d("ME","lazyloaderLastItem:"+lazyLoader.lastStringLoaded);
 				}
 			} //end lazy code			
 		}
@@ -656,10 +670,18 @@ public class UIManager implements ScrollViewListener{
 	
 	
 	// Async Tasks
+		
 	private class AsyncLogin extends AsyncTask<URL, Integer, Long> {
 	     protected Long doInBackground(URL... urls) {
+	    	 uiStatus=UI_STATUS_LOCKED;
 	    	 publishProgress(0);
 	         
+	    	 if(mtx.user.login()){
+					if(rememberMeCheckBox.isChecked())
+						mtx.user.saveUser();
+					uiStatus=UI_STATUS_REQUEST_SUCCEED;
+				}else
+					uiStatus=UI_STATUS_REQUEST_FAILED;	    	 
 	         return null;
 	     }
 
@@ -671,14 +693,103 @@ public class UIManager implements ScrollViewListener{
 	    	 loading.setVisibility(View.GONE);
 	     }
 	 }	
+	
+	
+	private class AsyncGetProject extends AsyncTask<URL, Integer, Long> {
+	     protected Long doInBackground(URL... urls) {
+	    	 uiStatus=UI_STATUS_LOCKED;
+	    	 publishProgress(0);
+	    	 if(mtx.user.project.getProject(slug.getText().toString())){
+					uiStatus = UI_STATUS_REQUEST_SUCCEED;
+				}else
+					uiStatus = UI_STATUS_REQUEST_FAILED;	    		    	 
+	         return null;
+	     }
+
+	     protected void onProgressUpdate(Integer... progress) {
+	         loading.setVisibility(View.VISIBLE);
+	     }
+
+	     protected void onPostExecute(Long result) {
+	    	 loading.setVisibility(View.GONE);
+	     }
+	 }
+	
+	private class AsyncGetResourcesByLanguage extends AsyncTask<URL, Integer, Long> {
+	     protected Long doInBackground(URL... urls) {
+	    	 uiStatus=UI_STATUS_LOCKED;
+	    	 publishProgress(0);
+	    	 mtx.user.project.getResourceStatsAllByLanguage(mtx.user.project.slug
+	    			 		,mtx.user.project.projectDetailsJson.getJSONArray("resources")
+	    			 		,mtx.user.project.selectedLanguageCode);
+			uiStatus = UI_STATUS_REQUEST_SUCCEED;
+					    	 
+	         return null;
+	     }
+
+	     protected void onProgressUpdate(Integer... progress) {
+	         loading.setVisibility(View.VISIBLE);
+	     }
+
+	     protected void onPostExecute(Long result) {
+	    	 loading.setVisibility(View.GONE);
+	     }
+	 }
+	
+	private class AsyncGetResourceStrings extends AsyncTask<URL, Integer, Long> {
+	     protected Long doInBackground(URL... urls) {
+	    	 uiStatus=UI_STATUS_LOCKED;
+	    	 publishProgress(0);
+	    	 mtx.user.project.selectedResourceStrings = mtx.user.project.getResourceStringsByLanguage(
+	 				mtx.user.project.slug, mtx.user.project.selectedResourceSlug, mtx.user.project.selectedLanguageCode);
+	    	 if(mtx.user.project.selectedResourceStrings!=null)
+	    		 uiStatus = UI_STATUS_REQUEST_SUCCEED;
+	    	 else
+	    		 uiStatus = UI_STATUS_REQUEST_FAILED;
+	         return null;
+	     }
+
+	     protected void onProgressUpdate(Integer... progress) {
+	         loading.setVisibility(View.VISIBLE);
+	     }
+
+	     protected void onPostExecute(Long result) {
+	    	 loading.setVisibility(View.GONE);
+	     }
+	 }
 	// Async Tasks End
 	
 	public void updateUI(){
-		if(uiStatus!=UI_STATUS_IDLE)
-		switch(currentScreen){
-		case SCREEN_LOGIN:
-			break;
-		}
+		int uiStatusBuffer = uiStatus;
+		uiStatus = UI_STATUS_IDLE;
+		if(uiStatusBuffer!=UI_STATUS_IDLE)
+			if(uiStatusBuffer!=UI_STATUS_LOCKED)
+				switch(currentScreen){
+				case SCREEN_LOGIN:
+					if(uiStatusBuffer==UI_STATUS_REQUEST_SUCCEED){
+						//keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
+						loadUI(SCREEN_DASHBOARD);
+					}else
+						Toast.makeText(mtx, "Could authenticate! Try again please.", Toast.LENGTH_LONG).show();
+					break;
+				case SCREEN_DASHBOARD:
+					if(uiStatusBuffer==UI_STATUS_REQUEST_SUCCEED){
+						//keyboard.hideSoftInputFromWindow(arg0.getWindowToken(),0);
+						loadUI(SCREEN_PROJECT);
+					}else
+						Toast.makeText(mtx, "Project could not be retrieved!", Toast.LENGTH_LONG).show();
+					break;
+				case SCREEN_PROJECT:
+					loadUI(SCREEN_LANGUAGE);
+					Toast.makeText(mtx, "Language Selected", Toast.LENGTH_LONG).show();
+					break;
+				case SCREEN_LANGUAGE:
+					if(uiStatusBuffer==UI_STATUS_REQUEST_SUCCEED)
+						loadUI(SCREEN_TRANSLATE);
+					else
+						Toast.makeText(mtx, "Strings could not be retrieved!", Toast.LENGTH_LONG).show();
+					break;
+				}
 	}	
 	
 }

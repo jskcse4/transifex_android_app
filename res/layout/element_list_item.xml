@@ -5,12 +5,12 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-                android:id="@+id/RelativeLayout03"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@drawable/rectangle_list_item"
-                android:clickable="true"
-                android:padding="5dp" >
+        android:id="@+id/RelativeLayout03"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/rectangle_list_item"
+        android:clickable="true"
+        android:padding="5dp" >
 
                 <TextView
                     android:id="@+id/itemName"
@@ -49,6 +49,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/icon_arrow_right" />
+
                 </LinearLayout>
             </RelativeLayout>
 

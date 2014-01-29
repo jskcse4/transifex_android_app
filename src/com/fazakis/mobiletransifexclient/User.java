@@ -29,8 +29,8 @@ public class User extends Networkable{
 				loggedInFlag = true;
 				return true;
 			}		
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
 		
 		return false;
 	}

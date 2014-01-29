@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class Project extends Networkable{
@@ -19,7 +21,13 @@ public class Project extends Networkable{
 	String slug = new String("");
 	JSONObject projectDetailsJson;
 	Map<String,JSONObject> languages;
+	Map<JSONObject,JSONObject> selectedLanguageResources;
+	JSONArray selectedResourceStrings;
 	//ArrayList Strings;
+	
+	//async data for SCREEN_TRANSLATE
+	String selectedTranslation;
+	//end async data
 	
 	String selectedLanguageCode;
 	String selectedResourceSlug;	
@@ -54,8 +62,18 @@ public class Project extends Networkable{
 				}
 				return true;
 			}		
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
+		return false;
+	}
+	
+	public Boolean getResourceStatsAllByLanguage(String slug,JSONArray resources,String languageCode){
+		selectedLanguageResources = new HashMap<JSONObject,JSONObject>();
+		for(int i=0;i<resources.length();i++){
+			JSONObject resourceStats = getResourceStatsByLanguage(slug, 
+					resources.getJSONObject(i).getString("slug"), languageCode);
+			selectedLanguageResources.put(resources.getJSONObject(i),resourceStats);			
+		}
 		return false;
 	}
 	
@@ -70,8 +88,8 @@ public class Project extends Networkable{
 				//Log.d("ME","getResourceStatsByLanguage:"+nr.responseString);
 				return nr.responseJson;
 			}
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();	
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();	
 		return null;
 	}
 	
@@ -85,8 +103,8 @@ public class Project extends Networkable{
 				//Log.d("ME","getResourceStringsByLanguage:"+nr.responseString);
 				return nr.responseJsonArray;
 			}
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();	
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();	
 		return null;
 	}
 	
@@ -166,8 +184,8 @@ public class Project extends Networkable{
 				//Log.d("ME","saveTralsnation response: "+nr.responseString);
 				return true;
 			}
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
 		
 		return false;
 	}
@@ -206,8 +224,8 @@ public class Project extends Networkable{
 				//Log.d("ME","saveTralsnation response: "+nr.responseString);
 				return true;
 			}
-		}else
-			Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
+		}//else
+			//Toast.makeText(mtx, "Request failed!", Toast.LENGTH_LONG).show();
 		
 		return false;
 	}

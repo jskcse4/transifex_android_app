@@ -51,7 +51,12 @@ public class NetworkOperator{
 		if(cm.getActiveNetworkInfo()!=null && cm.getActiveNetworkInfo().isConnected()){
 			// Creating HTTP client
 			// Creating HTTP Post
-			httpGet = new HttpGet(apiUrl+method);	
+			try{
+				httpGet = new HttpGet(apiUrl+method);
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
+				return null;
+			}
 			httpGet.setHeader("Content-Type", "application/json");
 			// Making HTTP Request
 			try {
@@ -77,9 +82,14 @@ public class NetworkOperator{
 	NetworkResponse postData(String method,List<NameValuePair> nameValuePair){
 		if(cm.getActiveNetworkInfo()!=null && cm.getActiveNetworkInfo().isConnected()){
 			// Creating HTTP client
-			httpClient = new DefaultHttpClient();		 
+			//httpClient = new DefaultHttpClient();		 
 			// Creating HTTP Post
-			httpPost = new HttpPost(apiUrl+method);
+			try{
+				httpPost = new HttpPost(apiUrl+method);
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
+				return null;
+			}
 			httpPost.setHeader("Content-Type", "application/json");
 			// Url Encoding the POST parameters
 			try {
@@ -115,7 +125,12 @@ public class NetworkOperator{
 		if(cm.getActiveNetworkInfo()!=null && cm.getActiveNetworkInfo().isConnected()){
 			// Creating HTTP client
 			// Creating HTTP Post
-			httpGet = new HttpGet(apiUrl+method);	
+			try{
+				httpGet = new HttpGet(apiUrl+method);
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
+				return null;
+			}
 			httpGet.addHeader(BasicScheme.authenticate(
 					 new UsernamePasswordCredentials(user, password),
 					 "UTF-8", false));
@@ -145,7 +160,12 @@ public class NetworkOperator{
 		if(cm.getActiveNetworkInfo()!=null && cm.getActiveNetworkInfo().isConnected()){
 			// Creating HTTP client
 			// Creating HTTP Post
-			httpPut = new HttpPut(apiUrl+method);	
+			try{
+				httpPut = new HttpPut(apiUrl+method);
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
+				return null;
+			}
 			httpPut.addHeader(BasicScheme.authenticate(
 					 new UsernamePasswordCredentials(user, password),
 					 "UTF-8", false));

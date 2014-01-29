@@ -35,7 +35,7 @@
 	            android:padding="10dp"
 	            android:text="" >
 	
-	            <requestFocus />
+	           
 	        </EditText>
 	
 	        <TextView

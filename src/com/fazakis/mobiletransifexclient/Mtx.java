@@ -147,7 +147,7 @@ public class Mtx extends Activity {
 		else if(uiManager.currentScreen>UIManager.SCREEN_DASHBOARD)
 			uiManager.loadUI(--uiManager.currentScreen);
 		else{
-			super.onBackPressed();
+			super.onBackPressed();			
 			finish();
 		}
 	}
@@ -155,7 +155,8 @@ public class Mtx extends Activity {
 	@Override
     protected void onDestroy() {		
         super.onDestroy();
-        //System.exit(0);
+        //Log.d("ME","ondestroy");
+        System.exit(0);
     }
 	
 	@Override
